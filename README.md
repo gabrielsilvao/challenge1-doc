@@ -411,6 +411,8 @@ sum:trace.http.request.hits{service:sample-web-app}.as_rate()
 
 ### 6.2 Dashboard Datadog
 
+![Datadog Dashboard](./img/desafio-sre-dd-dashboard.gif)
+
 O dashboard criado inclui:
 
 1. **Overview Panel**
