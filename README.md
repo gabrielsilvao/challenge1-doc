@@ -198,7 +198,13 @@ spec:
 | 4 | 80% | 30s | Validação final |
 | 5 | 100% | - | Promoção completa |
 
-### 4.3 Benefícios da Estratégia
+### 4.3 Argo Rollouts em Ação
+
+![Argo Rollouts - Canary Deployment](./img/argo-rollouts1.gif)
+
+![Argo Rollouts - Progressive Delivery](./img/argo-rollouts2.gif)
+
+### 4.4 Benefícios da Estratégia
 
 1. **Mitigação de Risco**: Apenas uma fração dos usuários é exposta a novas versões inicialmente
 2. **Rollback Rápido**: Em caso de falha, o tráfego é redirecionado para a versão estável
