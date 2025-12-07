@@ -153,9 +153,9 @@ challenge1-k8s-manifests/
 
 ---
 
-## 5. Estratégia de Rollout Seguro
+## 4. Estratégia de Rollout Seguro
 
-### 5.1 Canary Deployment com Argo Rollouts
+### 4.1 Canary Deployment com Argo Rollouts
 
 ```yaml
 spec:
@@ -174,7 +174,7 @@ spec:
         - pause: {duration: 30s}
 ```
 
-### 5.2 Fases do Rollout
+### 4.2 Fases do Rollout
 
 | Fase | Tráfego Canary | Duração | Ação |
 |------|----------------|---------|------|
@@ -184,14 +184,14 @@ spec:
 | 4 | 80% | 30s | Validação final |
 | 5 | 100% | - | Promoção completa |
 
-### 5.3 Benefícios da Estratégia
+### 4.3 Benefícios da Estratégia
 
 1. **Mitigação de Risco**: Apenas uma fração dos usuários é exposta a novas versões inicialmente
 2. **Rollback Rápido**: Em caso de falha, o tráfego é redirecionado para a versão estável
 3. **Validação Gradual**: Tempo para identificar problemas antes do impacto total
 4. **Zero Downtime**: Transição suave entre versões
 
-### 5.4 Blue-Green com Shadow Traffic e AnalysisTemplate
+### 4.4 Blue-Green com Shadow Traffic e AnalysisTemplate
 
 Uma alternativa ao Canary é a estratégia **Blue-Green com Shadow Traffic**, onde o tráfego é espelhado para a nova versão sem afetar os usuários. O **AnalysisTemplate** do Argo Rollouts permite validar automaticamente a nova versão baseado em métricas.
 
@@ -293,9 +293,9 @@ plugin: request-transformer
 
 ---
 
-## 6. SLIs e SLOs
+## 5. SLIs e SLOs
 
-### 6.1 Service Level Indicators (SLIs)
+### 5.1 Service Level Indicators (SLIs)
 
 | SLI | Descrição | Métrica Datadog | Meta |
 |-----|-----------|-----------------|------|
@@ -305,7 +305,7 @@ plugin: request-transformer
 | **Error Rate** | Taxa de erros 5xx | `sum:trace.http.request.errors{service:sample-web-app}` | < 0.1% |
 | **Throughput** | Requests por segundo | `sum:trace.http.request.hits{service:sample-web-app}.as_rate()` | Baseline + 20% |
 
-### 6.2 Service Level Objectives (SLOs)
+### 5.2 Service Level Objectives (SLOs)
 
 #### SLO 1: Disponibilidade
 ```
@@ -329,7 +329,7 @@ Window: 24 horas rolling
 Cálculo: Requests 5xx / Total Requests * 100
 ```
 
-### 6.3 Error Budget
+### 5.3 Error Budget
 
 | SLO | Objetivo | Error Budget (30 dias) |
 |-----|----------|------------------------|
@@ -337,7 +337,7 @@ Cálculo: Requests 5xx / Total Requests * 100
 | Latência | 95% < 200ms | 5% de requests lentos |
 | Erros | 0.1% | 0.1% de requests com erro |
 
-### 6.4 Queries Datadog para SLIs
+### 5.4 Queries Datadog para SLIs
 
 ```sql
 -- Availability SLI
@@ -357,9 +357,9 @@ sum:trace.http.request.hits{service:sample-web-app}.as_rate()
 
 ---
 
-## 7. Observabilidade
+## 6. Observabilidade
 
-### 7.1 Três Pilares Implementados
+### 6.1 Três Pilares Implementados
 
 #### Métricas
 - **Fonte**: OpenTelemetry SDK + Datadog Agent
@@ -399,7 +399,7 @@ sum:trace.http.request.hits{service:sample-web-app}.as_rate()
   - `http.method`, `http.url`, `http.status_code`
   - `http.host`, `http.user_agent`
 
-### 7.2 Dashboard Datadog
+### 6.2 Dashboard Datadog
 
 O dashboard criado inclui:
 
@@ -420,9 +420,9 @@ O dashboard criado inclui:
 
 ---
 
-## 12. Entregáveis
+## 7. Entregáveis
 
-### 12.1 Checklist de Tarefas
+### 7.1 Checklist de Tarefas
 
 | # | Tarefa | Status |
 |---|--------|--------|
@@ -438,7 +438,7 @@ O dashboard criado inclui:
 | 7b | SLIs e SLOs propostos | ✅ |
 | 7c | Estratégia de rollout seguro | ✅ |
 
-### 12.2 Extras Implementados
+### 7.2 Extras Implementados
 
 1. **Argo Rollouts** - Progressive delivery com canary deployment
 2. **Argo Image Updater** - Atualização automática de imagens
@@ -450,7 +450,7 @@ O dashboard criado inclui:
 
 ---
 
-## 13. Conclusão
+## 8. Conclusão
 
 Este projeto demonstra a implementação de uma plataforma moderna de e-commerce com foco em:
 
