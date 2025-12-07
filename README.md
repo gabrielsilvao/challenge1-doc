@@ -1,5 +1,15 @@
 # Case Técnico - Site Reliability Engineer (SRE)
 
+## Repositórios do Projeto
+
+| Repositório | Descrição | Link |
+|-------------|-----------|------|
+| **challenge1-app** | CI + Código fonte da aplicação Go | [GitHub Actions](https://github.com/gabrielsilvao/challenge1-app) |
+| **challenge1-infra-tf** | IaC (Terraform) + CD | [GitHub Actions](https://github.com/gabrielsilvao/challenge1-infra-tf) |
+| **challenge1-k8s-manifests** | Manifestos K8s (GitOps) | [GitHub](https://github.com/gabrielsilvao/challenge1-k8s-manifests) |
+
+---
+
 ## Sumário Executivo
 
 Este documento descreve a arquitetura, decisões técnicas e implementação de uma plataforma modernizada na AWS, utilizando Kubernetes (EKS) como orquestrador de contêineres. O projeto foi desenvolvido com foco em **resiliência**, **confiabilidade** e **observabilidade**, implementando práticas de **GitOps** para deploy automatizado e seguro.
