@@ -1,8 +1,8 @@
-# Documentação Técnica - Plataforma E-commerce Modernizada
+# Case Técnico - Site Reliability Engineer (SRE)
 
 ## Sumário Executivo
 
-Este documento descreve a arquitetura, decisões técnicas e implementação de uma plataforma de e-commerce modernizada na AWS, utilizando Kubernetes (EKS) como orquestrador de contêineres. O projeto foi desenvolvido com foco em **resiliência**, **confiabilidade** e **observabilidade**, implementando práticas de **GitOps** para deploy automatizado e seguro.
+Este documento descreve a arquitetura, decisões técnicas e implementação de uma plataforma modernizada na AWS, utilizando Kubernetes (EKS) como orquestrador de contêineres. O projeto foi desenvolvido com foco em **resiliência**, **confiabilidade** e **observabilidade**, implementando práticas de **GitOps** para deploy automatizado e seguro.
 
 ---
 
@@ -34,6 +34,7 @@ Este documento descreve a arquitetura, decisões técnicas e implementação de 
 |------------|------------|--------|
 | **IaC** | Terraform | >= 1.0.0 |
 | **Backend** | S3 | - |
+| **State Lock** | DynamoDB | - |
 | **Estrutura** | Módulos (VPC, EKS, ECR, Helm) | - |
 
 ### 2.2 Kubernetes e Orquestração
@@ -189,6 +190,106 @@ spec:
 2. **Rollback Rápido**: Em caso de falha, o tráfego é redirecionado para a versão estável
 3. **Validação Gradual**: Tempo para identificar problemas antes do impacto total
 4. **Zero Downtime**: Transição suave entre versões
+
+### 5.4 Blue-Green com Shadow Traffic e AnalysisTemplate
+
+Uma alternativa ao Canary é a estratégia **Blue-Green com Shadow Traffic**, onde o tráfego é espelhado para a nova versão sem afetar os usuários. O **AnalysisTemplate** do Argo Rollouts permite validar automaticamente a nova versão baseado em métricas.
+
+#### AnalysisTemplate para Validação de Erros
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: error-rate-analysis
+  namespace: sample-web-app
+spec:
+  args:
+    - name: service-name
+      value: sample-web-app
+  metrics:
+    - name: error-rate
+      interval: 30s
+      count: 5
+      successCondition: result[0] < 0.05
+      failureLimit: 3
+      provider:
+        datadog:
+          query: |
+            sum:trace.http.request.hits{service:{{args.service-name}},http.status_code:5*}.as_count() /
+            sum:trace.http.request.hits{service:{{args.service-name}}}.as_count()
+    - name: latency-p99
+      interval: 30s
+      count: 5
+      successCondition: result[0] < 500
+      failureLimit: 3
+      provider:
+        datadog:
+          query: |
+            p99:trace.http.request.duration{service:{{args.service-name}}}
+```
+
+#### Rollout Blue-Green com Analysis
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: sample-web-app
+  namespace: sample-web-app
+spec:
+  replicas: 3
+  strategy:
+    blueGreen:
+      activeService: sample-web-app-active
+      previewService: sample-web-app-preview
+      autoPromotionEnabled: false
+      prePromotionAnalysis:
+        templates:
+          - templateName: error-rate-analysis
+        args:
+          - name: service-name
+            value: sample-web-app-preview
+      postPromotionAnalysis:
+        templates:
+          - templateName: error-rate-analysis
+        args:
+          - name: service-name
+            value: sample-web-app
+      scaleDownDelaySeconds: 30
+```
+
+#### Fluxo do Blue-Green com Shadow
+
+| Fase | Ação | Validação |
+|------|------|-----------|
+| 1 | Deploy da versão Preview (Green) | Pods healthy |
+| 2 | Shadow traffic para Preview | Espelhamento sem impacto |
+| 3 | Pre-Promotion Analysis | Error rate < 5%, Latency p99 < 500ms |
+| 4 | Switch de tráfego (Blue → Green) | Promoção automática se análise passar |
+| 5 | Post-Promotion Analysis | Validação final em produção |
+| 6 | Scale down da versão antiga | Cleanup após 30s |
+
+#### Configuração do Shadow Traffic (Kong)
+
+```yaml
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: request-mirror
+  namespace: sample-web-app
+config:
+  mirror_target: sample-web-app-preview.sample-web-app.svc.cluster.local:80
+  mirror_percentage: 100
+plugin: request-transformer
+```
+
+#### Benefícios do Blue-Green com Shadow
+
+1. **Zero Risk Testing**: Tráfego espelhado não afeta usuários reais
+2. **Validação Automatizada**: AnalysisTemplate verifica métricas automaticamente
+3. **Rollback Instantâneo**: Switch de serviço é atômico
+4. **Análise Completa**: Pre e Post promotion analysis garantem qualidade
 
 ---
 
