@@ -26,11 +26,15 @@ Este documento descreve a arquitetura, decisões técnicas e implementação de 
 
 ![GitOps](./img/automated-deployment-flow.svg)
 
-### 1.3 Arquitetura AWS
+### 1.3 ArgoCD em Ação
+
+![ArgoCD Example](./img/argocd-example.gif)
+
+### 1.4 Arquitetura AWS
 
 ![AWS Architecture](./img/aws-diagram.svg)
 
-### 1.4 Observability Stack
+### 1.5 Observability Stack
 
 ![Observability Stack](./img/observability.svg)
 
@@ -413,23 +417,6 @@ sum:trace.http.request.hits{service:sample-web-app}.as_rate()
 
 ![Datadog Dashboard](./img/desafio-sre-dd-dashboard.gif)
 
-O dashboard criado inclui:
-
-1. **Overview Panel**
-   - Request rate (requests/sec)
-   - Error rate (%)
-   - Latency P50/P95/P99
-
-2. **Infrastructure Panel**
-   - Pod CPU/Memory usage
-   - Node health
-   - Container restarts
-
-3. **APM Panel**
-   - Service map
-   - Trace waterfall
-   - Error tracking
-
 ---
 
 ## 7. Entregáveis
@@ -459,18 +446,6 @@ O dashboard criado inclui:
 5. **HPA (Horizontal Pod Autoscaler)** - Auto-scaling baseado em CPU
 6. **Structured Logging** - Logs JSON com correlação de traces
 7. **Security Scan** - Trivy vulnerability scanner no pipeline
-
----
-
-## 8. Conclusão
-
-Este projeto demonstra a implementação de uma plataforma moderna de e-commerce com foco em:
-
-- **Resiliência**: Canary deployments, rollback automático, HPA
-- **Confiabilidade**: SLIs/SLOs definidos, error budgets, health checks
-- **Observabilidade**: Métricas, logs e traces correlacionados no Datadog
-- **Automação**: GitOps com ArgoCD, Image Updater, GitHub Actions
-- **Segurança**: Private subnets, secrets management, vulnerability scanning
 
 ---
 
